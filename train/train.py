@@ -39,7 +39,6 @@ torch.set_float32_matmul_precision("high")
 @dataclasses.dataclass
 class TrainingConfig:
     name: str
-    tokenizer_name: str
     model_name: str
 
     device: str = "cuda"
@@ -184,9 +183,6 @@ def train(config: TrainingConfig) -> None:
     logger.info("> Training config")
     logger.info(config)
 
-    logger.info(f"> Create tokenizer: {config.tokenizer_name}")
-    tokenizer = make_tokenizer(config.tokenizer_name)
-
     logger.info(f"> Create model: {config.model_name}")
     model = make_model(
         config.model_name,
@@ -197,6 +193,9 @@ def train(config: TrainingConfig) -> None:
         dtype=torch.float32,
     )
     model.train()
+
+    logger.info(f"> Create tokenizer: {model.hparam.tokenizer_name}")
+    tokenizer = make_tokenizer(model.hparam.tokenizer_name)
 
     logger.info("> Create dataset")
     dataset = make_dataset(
@@ -321,7 +320,6 @@ def train(config: TrainingConfig) -> None:
 def test_train():
     config = TrainingConfig(
         name="test_cpu",
-        tokenizer_name="sentencepiece_tok512",
         model_name="karpathy_tinystories260k",
         device="cpu",
         batch_size=2,
@@ -334,7 +332,6 @@ def test_train():
 
     config = TrainingConfig(
         name="test_cuda",
-        tokenizer_name="sentencepiece_tok512",
         model_name="karpathy_tinystories260k",
         device="cuda",
         batch_size=2,
@@ -350,7 +347,6 @@ def main(name: str):
     if name == "baseline_debug":
         config = TrainingConfig(
             name=name,
-            tokenizer_name="sentencepiece_tok512",
             model_name="karpathy_tinystories260k",
             batch_size=8,
             gradient_accumulation_steps=4,
@@ -360,7 +356,6 @@ def main(name: str):
     if name == "baseline_15m":
         config = TrainingConfig(
             name=name,
-            tokenizer_name="sentencepiece_tok32k",
             model_name="karpathy_tinystories15m",
             batch_size=32,
             gradient_accumulation_steps=4,
