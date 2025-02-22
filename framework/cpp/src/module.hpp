@@ -11,6 +11,7 @@ template <typename T>
 class Module {
  protected:
   std::string name_;
+  std::string hier_name_;
   std::map<std::string, size_t> params_;             // hyper parameters
   std::vector<std::shared_ptr<Tensor<T>>> weights_;  // trainable weights
   std::vector<std::shared_ptr<Tensor<T>>> inputs_;   // input tensors
@@ -35,6 +36,7 @@ class Module {
         submodules_() {
     logger_ = setup_logger();
   }
+  virtual ~Module() = default;
 
   //===========================================================================
   // Modifiers
@@ -98,26 +100,6 @@ class Module {
   // void dump_weights(const std::string &path) {
   //   // TODO: implement
   // }
-
-  //----------------------------------------------------------------------------
-  // Submodules
-  //----------------------------------------------------------------------------
-  void add_submodule(Module<T> &submodule) {
-    auto name = submodule.get_name();
-    assert(submodules_.find(name) == submodules_.end());  // check name unique
-    submodules_[name] = submodule;
-    submodule.set_name(name_ + "." + name);
-  }
-
-  //----------------------------------------------------------------------------
-  // inputs and outputs
-  //----------------------------------------------------------------------------
-  void add_input(const Tensor<T> &input) {
-    inputs_.push_back(std::make_unique<Tensor<T>>(input));
-  }
-  void add_output(const Tensor<T> &output) {
-    outputs_.push_back(std::make_unique<Tensor<T>>(output));
-  }
 
   //===========================================================================
   // Accessors

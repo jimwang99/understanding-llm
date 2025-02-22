@@ -1,9 +1,10 @@
 #include "logger.hpp"
+
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-std::shared_ptr<spdlog::logger>
-setup_logger(const std::string name, const std::string level,
-             const std::vector<spdlog::sink_ptr> sinks) {
+std::shared_ptr<spdlog::logger> setup_logger(
+    const std::string name, const std::string level,
+    const std::vector<spdlog::sink_ptr> sinks) {
   auto logger = spdlog::get(name);
 
   if (logger == nullptr) {
@@ -14,8 +15,8 @@ setup_logger(const std::string name, const std::string level,
           std::make_shared<spdlog::logger>(name, sinks.begin(), sinks.end());
       spdlog::register_logger(logger);
     }
-    logger->set_level(spdlog::level::from_str(level));
   }
+  logger->set_level(spdlog::level::from_str(level));
   return logger;
 }
 

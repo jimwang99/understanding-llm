@@ -11,8 +11,10 @@ HyperParam get_hyper_param(const std::string name) {
   throw std::runtime_error("Unsupported model name " + name);
 }
 
-Llama<float> make_fp32_llama(const std::string name) {
-  return Llama<float>(name, get_hyper_param(name));
+Llama<float> make_fp32_llama(const std::string name, Tensor<float>& token) {
+  auto hp = get_hyper_param(name);
+  token.reshape({hp.B, hp.Lm});
+  return Llama<float>(name, hp, token);
 }
 
 }  // namespace llama

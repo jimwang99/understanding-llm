@@ -8,10 +8,7 @@ namespace func {
 template <typename T>
 void embedding_out(const Tensor<T> &token, const Tensor<T> &weight,
                    Tensor<T> &output) {
-  ASSERT(token.ndim() >= 1, token.str());
-  ASSERT(weight.ndim() == 2, weight.str());
   auto dim = weight.shape(0);
-
   auto shape = token.shape();
   shape.insert(shape.begin(), dim);
 
@@ -38,8 +35,8 @@ class Embedding : public virtual Module<T> {
 
   Tensor<T> embedding_;
 
-  std::shared_ptr<Tensor<T>> input_;
-  std::shared_ptr<Tensor<T>> output_;
+  Tensor<T> &input_;
+  Tensor<T> &output_;
 
  public:
   Embedding(std::string name, size_t vocab, size_t dim, Tensor<T> &input,
@@ -48,24 +45,24 @@ class Embedding : public virtual Module<T> {
         vocab_(vocab),
         dim_(dim),
         embedding_({vocab, dim}, "embedding"),
-        input_(std::make_shared<Tensor<T>>(input)),
-        output_(std::make_shared<Tensor<T>>(output)) {
+        input_(input),
+        output_(output) {
     this->params_["Vocab"] = vocab_;
     this->params_["Dim"] = dim_;
-    this->weights_.push_back(std::make_shared<Tensor<T>>(embedding_));
-    this->inputs_.push_back(input_);
-    this->outputs_.push_back(output_);
+
+    add_weight(embedding_);
+    add_input(input_);
+    add_output(output_);
 
     this->logger_ = setup_logger("embedding");
     DEBUG("New module of Embedding:\n{}", this->str());
   }
 
   void forward() override {
-    ASSERT(input_->shape(0) == vocab_, "vocab_={} input_={}", vocab_,
+    ASSERT(input_.shape(0) == vocab_, "vocab_={} input_={}", vocab_,
            input_.str());
-    ASSERT(output_->shape(0) == dim_, "dim_={} output_={}", dim_,
-           output_.str());
-    func::embedding_out(*input_, embedding_, *output_);
+    ASSERT(output_.shape(0) == dim_, "dim_={} output_={}", dim_, output_.str());
+    func::embedding_out(input_, embedding_, output_);
   }
 };  // class Embedding
 

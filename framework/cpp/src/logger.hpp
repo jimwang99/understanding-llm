@@ -1,12 +1,12 @@
 #pragma once
 
+#ifndef SPDLOG_ACTIVE_LEVEL
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+#endif
+
 #include <spdlog/spdlog.h>
 
 #include <cassert>
-
-#ifndef LOG_LEVEL_DEFAULT
-#define LOG_LEVEL_DEFAULT "trace"
-#endif
 
 #define ASSERT(condition, ...) \
   if (!(condition)) {          \
@@ -15,8 +15,7 @@
   }
 
 std::shared_ptr<spdlog::logger> setup_logger(
-    const std::string name = "default",
-    const std::string level = LOG_LEVEL_DEFAULT,
+    const std::string name = "default", const std::string level = "trace",
     const std::vector<spdlog::sink_ptr> sinks = {});
 
 std::shared_ptr<spdlog::logger> get_logger(const std::string name = "default");
