@@ -15,7 +15,8 @@
   }
 
 std::shared_ptr<spdlog::logger> setup_logger(
-    const std::string name = "default", const std::string level = "trace",
+    const std::string name = "default",
+    const std::string level = SPDLOG_ACTIVE_LEVEL,
     const std::vector<spdlog::sink_ptr> sinks = {});
 
 std::shared_ptr<spdlog::logger> get_logger(const std::string name = "default");

@@ -46,15 +46,13 @@ class Embedding : public virtual Module<T> {
         dim_(dim),
         embedding_({vocab, dim}, "embedding"),
         input_(input),
-        output_(output) {
-    this->params_["Vocab"] = vocab_;
-    this->params_["Dim"] = dim_;
-
+        output_(output),
+        logger_(setup_logger("Embedding")) {
+    add_param("Vocab", vocab_);
+    add_param("Dim", dim_);
     add_weight(embedding_);
     add_input(input_);
     add_output(output_);
-
-    this->logger_ = setup_logger("embedding");
     DEBUG("New module of Embedding:\n{}", this->str());
   }
 

@@ -11,7 +11,6 @@ template <typename T>
 class Module {
  protected:
   std::string name_;
-  std::string hier_name_;
   std::map<std::string, size_t> params_;             // hyper parameters
   std::vector<std::shared_ptr<Tensor<T>>> weights_;  // trainable weights
   std::vector<std::shared_ptr<Tensor<T>>> inputs_;   // input tensors
@@ -133,11 +132,14 @@ class Module {
   // Pretty print
   //===========================================================================
   std::string str() const {
-    std::string s = fmt::format("Module name={} param=[", name_);
-    for (auto &[name, param] : params_) {
-      s += fmt::format("{}:{},", name, param);
+    std::string s = fmt::format("Module name={}", name_);
+    if (!params_.empty()) {
+      s += " param=[";
+      for (auto &[name, param] : params_) {
+        s += fmt::format("{}:{},", name, param);
+      }
+      s.back() = ']';
     }
-    s.back() = ']';
     for (auto &weight : weights_) {
       s += fmt::format("\n  weight {}", weight->str());
     }
