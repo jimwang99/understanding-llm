@@ -124,6 +124,7 @@ class Tensor {
   size_t size() const { return strides_.back(); }
   size_t nbytes() const { return data_.size() * sizeof(T); }
   std::vector<size_t> shape() const { return shape_; }
+  std::vector<size_t> stride() const { return strides_; }
   size_t ndim() const { return shape_.size(); }
   size_t shape(const int i) const {
     assert(i < shape_.size());

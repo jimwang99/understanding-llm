@@ -13,6 +13,8 @@ class Layer : public virtual Module<T> {
   const size_t y_; /*! layer index */
 
   Tensor<T> &emb_; /*! input and output of Layer*/
+  Tensor<T> &cos_; /*! cos constant for RoPE */
+  Tensor<T> &sin_; /*! sin constant for RoPE */
 
   // hidden states of Layer
   Tensor<T> embn_;
@@ -41,11 +43,13 @@ class Layer : public virtual Module<T> {
 
  public:
   Layer(const std::string name, const HyperParam &hp, const size_t y,
-        Tensor<T> &emb)
+        Tensor<T> &emb, Tensor<T> &cos, Tensor<T> &sin)
       : Module<T>(name),
         hp_(hp),
         y_(y),
         emb_(emb),
+        cos_(cos),
+        sin_(sin),
         embn_({hp_.B, hp_.Lm, hp_.D}, "emb_norm"),
         q_({hp_.B, hp_.Lm, hp_.Nh, hp_.Dh}, "q"),
         k_({hp_.B, hp_.Lm, hp_.Nkv, hp_.Dh}, "k"),
@@ -80,7 +84,26 @@ class Layer : public virtual Module<T> {
   }
 
   void forward() {
-    // TODO
+    // Input normalization
+    func::rms_norm_out(emb_, embn_, hp_.Eps);
+
+    // input projection
+    m_input_proj_q_.forward();
+    m_input_proj_k_.forward();
+    m_input_proj_v_.forward();
+
+    // rope
+    rope_inline(q_, cos_, sin_);  // TODO: generation stage
+    rope_inline(k_, cos_, sin_);  // TODO: generation stage
+
+    // kv-cache
+    m_k_cache_.forward();
+    m_v_cache_.forward();
+
+    // qkv-transpose
+    transpose_1_2_inline(q_);
+    transpose_1_2_inline(k_);
+    transpose_1_2_inline(v_);
   }
 };
 

@@ -1,17 +1,22 @@
 #pragma once
 
-#include "tensor.hpp"
 #include <cassert>
+
+#include "tensor.hpp"
 
 namespace func {
 
 template <typename T, bool IMPLICIT_TRANSPOSE = false>
 void matmul_2d_out(const Tensor<T> &x, const Tensor<T> &y, Tensor<T> &z) {
-  assert(x.ndim() == 2);
-  assert(y.ndim() == 2);
-  assert(z.ndim() == 2);
+  ASSERT(x.ndim() == 3, x.shape());
+  ASSERT(y.ndim() == 3, y.shape());
+  ASSERT(z.ndim() == 3, z.shape());
+  ASSERT(x.shape(2) == y.shape(2));
+  ASSERT(x.shape(2) == z.shape(2));
+
   auto K = x.shape(0);
   auto N = x.shape(1);
+  auto B = x.shape(2);
   size_t M;
   if (!IMPLICIT_TRANSPOSE) {
     M = y.shape(0);
@@ -24,13 +29,15 @@ void matmul_2d_out(const Tensor<T> &x, const Tensor<T> &y, Tensor<T> &z) {
   assert(z.shape(1) == N);
 
   z.zeros();
-  for (size_t n = 0; n < N; ++n) {
-    for (size_t m = 0; m < M; ++m) {
-      for (size_t k = 0; k < K; ++k) {
-        if (!IMPLICIT_TRANSPOSE) {
-          z.at(m, n) += x.at(k, n) * y.at(m, k);
-        } else {
-          z.at(m, n) += x.at(k, n) * y.at(k, m);
+  for (size_t b = 0; b < B, ++b) {
+    for (size_t n = 0; n < N; ++n) {
+      for (size_t m = 0; m < M; ++m) {
+        for (size_t k = 0; k < K; ++k) {
+          if (!IMPLICIT_TRANSPOSE) {
+            z.at(b, m, n) += x.at(b, k, n) * y.at(b, m, k);
+          } else {
+            z.at(b, m, n) += x.at(b, k, n) * y.at(b, k, m);
+          }
         }
       }
     }
@@ -90,4 +97,4 @@ void matmul_2d_out(const Tensor<T> &x, const Tensor<T> &y, Tensor<T> &z) {
 //   z.view(z_shape);
 // }
 
-} // namespace func
+}  // namespace func
