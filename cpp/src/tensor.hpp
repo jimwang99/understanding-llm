@@ -1,35 +1,41 @@
 #pragma once
 
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 
+#include "logger.hpp"
 #include <cassert>
 #include <cstring>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include "logger.hpp"
+using TensorShape = std::vector<size_t>;
 
-template <typename T>
-class Tensor {
- public:
+template <typename T> class Tensor {
+private:
+  std::string name_;
+  std::vector<T> data_;
+  TensorShape shape_;
+  TensorShape strides_;
+
+public:
   //============================================================================
   // constructors
   //============================================================================
   // default constructor
   Tensor(const std::string name = "Unnamed-Tensor")
       : name_(name), data_(), shape_(), strides_() {
-    logger_ = setup_logger();
+    reshape({1});
   }
   // constructor with shape
-  Tensor(const std::vector<size_t> shape,
-         const std::string name = "Unnamed-Tensor")
+  Tensor(const TensorShape shape, const std::string name = "Unnamed-Tensor")
       : name_(name), data_(), shape_(), strides_() {
     reshape(shape);
   }
   // constructor with shape and iniital values
-  Tensor(const std::vector<size_t> shape, const std::vector<T> value,
-         const std::string name = "Unnamed")
+  Tensor(const TensorShape shape, const std::vector<T> value,
+         const std::string name = "Unnamed-Tensor")
       : name_(name), data_(), shape_(), strides_() {
     reshape(shape);
     for (size_t i = 0; i < value.size(); ++i) {
@@ -41,7 +47,7 @@ class Tensor {
   // modifiers
   //============================================================================
   // reshape: change the shape of the tensor with possible memory reallocation
-  void reshape(const std::vector<size_t> shape) {
+  void reshape(const TensorShape shape) {
     if (shape_ == shape) {
       return;
     }
@@ -54,7 +60,7 @@ class Tensor {
     data_.resize(strides_.back());
   }
   // view: change the shape of the tensor without changing the data
-  void view(const std::vector<size_t> shape) {
+  void view(const TensorShape shape) {
     size_t new_size = 1;
     for (auto s : shape) {
       new_size *= s;
@@ -94,25 +100,25 @@ class Tensor {
   T &at(const size_t i) { return data_.at(i); }
   const T &at(const size_t i) const { return data_.at(i); }
   T &at(const size_t i0, const size_t i1) {
-    return data_.at(i0 * strides_[1] + i1);
+    return data_.at(i1 * strides_[1] + i0);
   }
   const T &at(const size_t i0, const size_t i1) const {
-    return data_.at(i0 * strides_[1] + i1);
+    return data_.at(i1 * strides_[1] + i0);
   }
   T &at(const size_t i0, const size_t i1, const size_t i2) {
-    return data_.at(i0 * strides_[2] + i1 * strides_[1] + i2);
+    return data_.at(i2 * strides_[2] + i1 * strides_[1] + i0);
   }
   const T &at(const size_t i0, const size_t i1, const size_t i2) const {
-    return data_.at(i0 * strides_[2] + i1 * strides_[1] + i2);
+    return data_.at(i2 * strides_[2] + i1 * strides_[1] + i0);
   }
   T &at(const size_t i0, const size_t i1, const size_t i2, const size_t i3) {
-    return data_.at(i0 * strides_[3] + i1 * strides_[2] + i2 * strides_[1] +
-                    i3);
+    return data_.at(i3 * strides_[3] + i2 * strides_[2] + i1 * strides_[1] +
+                    i0);
   }
   const T &at(const size_t i0, const size_t i1, const size_t i2,
               const size_t i3) const {
-    return data_.at(i0 * strides_[3] + i1 * strides_[2] + i2 * strides_[1] +
-                    i3);
+    return data_.at(i3 * strides_[3] + i2 * strides_[2] + i1 * strides_[1] +
+                    i0);
   }
 
   const T *data() const { return data_.data(); }
@@ -123,8 +129,8 @@ class Tensor {
   //============================================================================
   size_t size() const { return strides_.back(); }
   size_t nbytes() const { return data_.size() * sizeof(T); }
-  std::vector<size_t> shape() const { return shape_; }
-  std::vector<size_t> stride() const { return strides_; }
+  TensorShape shape() const { return shape_; }
+  TensorShape stride() const { return strides_; }
   size_t ndim() const { return shape_.size(); }
   size_t shape(const int i) const {
     assert(i < shape_.size());
@@ -140,11 +146,8 @@ class Tensor {
   // pretty print (for debugging purpose)
   //============================================================================
   const std::string str() const {
-    std::string s = fmt::format("Tensor name={} shape=[", name_);
-    for (auto &n : shape_) {
-      s += fmt::format("{},", n);
-    }
-    s.back() = ']';
+    std::string s =
+        fmt::format("Tensor name={} shape=[{}]", name_, fmt::join(shape_, ","));
     s += " value=[";
 
     if (size() > 6) {
@@ -160,14 +163,6 @@ class Tensor {
     }
     return s;
   }
-
- private:
-  std::string name_;
-  std::vector<T> data_;
-  std::vector<size_t> shape_;
-  std::vector<size_t> strides_;
-
-  std::shared_ptr<spdlog::logger> logger_;
 };
 
 // comparison operator
@@ -190,3 +185,6 @@ std::ostream &operator<<(std::ostream &os, const Tensor<T> &obj) {
   os << obj.str();
   return os;
 }
+
+template <typename T> using TensorPtr = std::shared_ptr<Tensor<T>>;
+template <typename T> using CTensorPtr = std::shared_ptr<const Tensor<T>>;

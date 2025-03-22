@@ -16,8 +16,7 @@ void init_mask(Tensor<T> &mask, const size_t max_seq_len) {
 }
 
 template <typename T>
-void sdpa_out(Tensor<T> &q, Tensor<T> &k, Tensor<T> &v, Tensor<T> &attn,
-              const Tensor<T> &mask) {
+void sdpa_out(Tensor<T> &q, Tensor<T> &k, Tensor<T> &v, Tensor<T> &attn, const Tensor<T> &mask) {
   ASSERT(q.ndim() == 4, q.shape());
   ASSERT(k.ndim() == 4, k.shape());
   ASSERT(v.ndim() == 4, v.shape());

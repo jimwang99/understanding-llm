@@ -1,0 +1,14 @@
+services:
+  cpp-dev:
+    build: .
+    image: cpp-dev
+    container_name: cpp-dev
+    hostname: clang
+    command: /bin/bash
+    tty: true
+    stdin_open: true
+    privileged: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app

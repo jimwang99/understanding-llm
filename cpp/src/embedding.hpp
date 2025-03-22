@@ -4,10 +4,7 @@
 #include "tensor.hpp"
 
 namespace func {
-
-template <typename T>
-void embedding_out(const Tensor<T> &token, const Tensor<T> &weight,
-                   Tensor<T> &output) {
+template <typename T> void embedding_out(const Tensor<T> &token, const Tensor<T> &weight, Tensor<T> &output) {
   auto dim = weight.shape(0);
   auto shape = token.shape();
   shape.insert(shape.begin(), dim);
@@ -19,8 +16,7 @@ void embedding_out(const Tensor<T> &token, const Tensor<T> &weight,
       output.at(i, d) = weight.at(d, token.at(i));
     }
   }
-}  // FuncEmbedding
-
+}  // embedding_out
 }  // namespace func
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,10 +35,7 @@ class Embedding : public virtual Module<T> {
   Tensor<T> &output_;
 
  public:
-  Embedding(std::string name, size_t vocab, size_t dim, Tensor<T> &input,
-            Tensor<T> &output)
-      : Module<T>(name),
-        vocab_(vocab),
+  Embedding(std::string name, size_t vocab, size_t dim, Tensor<T> &input, Tensor<T> &output) : Module<T>(name), vocab_(vocab),
         dim_(dim),
         embedding_({vocab, dim}, "embedding"),
         input_(input),

@@ -1,41 +1,25 @@
 #pragma once
 
 #include "tensor.hpp"
-// #include <fstream>
 #include <map>
 #include <string>
 
 #include "logger.hpp"
 
-template <typename T>
-class Module {
- protected:
+template <typename T> class Module; // forward declarations
+template <typename T> using ModulePtr = std::shared_ptr<Module<T>>;
+
+template <typename T> class Module {
+protected:
   std::string name_;
-  std::map<std::string, size_t> params_;             // hyper parameters
-  std::vector<std::shared_ptr<Tensor<T>>> weights_;  // trainable weights
-  std::vector<std::shared_ptr<Tensor<T>>> inputs_;   // input tensors
-  std::vector<std::shared_ptr<Tensor<T>>> outputs_;  // output tensors
-  std::vector<std::shared_ptr<Tensor<T>>> inouts_;   // input/output tensors
-  std::vector<std::shared_ptr<Module<T>>> submodules_;
+  std::map<std::string, size_t> params_;    // hyper parameters
+  std::vector<const TensorPtr<T>> weights_; // trainable weights
+  std::vector<const CTensorPtr<T>> inputs_; // input tensors
+  std::vector<const TensorPtr<T>> outputs_; // output tensors
+  std::vector<const TensorPtr<T>> inouts_;  // input/output tensors
+  std::vector<const ModulePtr<T>> submodules_;
 
-  std::shared_ptr<spdlog::logger> logger_;
-
- public:
-  //===========================================================================
-  // Constructors
-  //===========================================================================
-  // default constructor
-  Module(const std::string name = "Unnamed-Module")
-      : name_(name),
-        params_(),
-        weights_(),
-        inputs_(),
-        outputs_(),
-        inouts_(),
-        submodules_() {
-    logger_ = setup_logger();
-  }
-  virtual ~Module() = default;
+  LoggerPtr logger_;
 
   //===========================================================================
   // Modifiers
@@ -44,20 +28,44 @@ class Module {
   void add_param(const std::string name, const size_t value) {
     params_[name] = value;
   }
-  void add_weight(Tensor<T> &weight) {
-    weights_.push_back(std::make_shared<Tensor<T>>(weight));
+  void add_weight(const TensorPtr<T> weight) { weights_.push_back(weight); }
+  void add_input(const CTensorPtr<T> input) { inputs_.push_back(input); }
+  void add_output(const TensorPtr<T> output) { outputs_.push_back(output); }
+  void add_inout(const TensorPtr<T> inout) { inouts_.push_back(inout); }
+  void add_submodule(const ModulePtr<T> submodule) {
+    submodules_.push_back(submodule);
   }
-  void add_input(Tensor<T> &input) {
-    inputs_.push_back(std::make_shared<Tensor<T>>(input));
+
+public:
+  //===========================================================================
+  // Constructors
+  //===========================================================================
+  // default constructor
+  Module(const std::string name)
+      : name_(name), params_(), weights_(), inputs_(), outputs_(), inouts_(),
+        submodules_() {
+    logger_ = setup_logger(name);
   }
-  void add_output(Tensor<T> &output) {
-    outputs_.push_back(std::make_shared<Tensor<T>>(output));
+  virtual ~Module() = default;
+
+  //===========================================================================
+  // Accessors
+  //===========================================================================
+  const std::string &name() const { return name_; }
+  size_t param(const std::string name) const { return params_.at(name); }
+  const TensorPtr<T> weights(const size_t i) const { return weights_.at(i); }
+  const CTensorPtr<T> inputs(const size_t i) const { return inputs_.at(i); }
+  const TensorPtr<T> outputs(const size_t i) const { return outputs_.at(i); }
+  const TensorPtr<T> inouts(const size_t i) const { return inouts_.at(i); }
+  const ModulePtr<T> submodules(const size_t i) const {
+    return submodules_.at(i);
   }
-  void add_inout(Tensor<T> &inout) {
-    inouts_.push_back(std::make_shared<Tensor<T>>(inout));
-  }
-  void add_submodule(Module<T> &submodule) {
-    submodules_.push_back(std::make_shared<Module<T>>(submodule));
+  const std::vector<const TensorPtr<T>> &weights() const { return weights_; }
+  const std::vector<const CTensorPtr<T>> &inputs() const { return inputs_; }
+  const std::vector<const TensorPtr<T>> &outputs() const { return outputs_; }
+  const std::vector<const TensorPtr<T>> &inouts() const { return inouts_; }
+  const std::vector<const ModulePtr<T>> &submodules() const {
+    return submodules_;
   }
 
   //----------------------------------------------------------------------------
@@ -101,12 +109,6 @@ class Module {
   // }
 
   //===========================================================================
-  // Accessors
-  //===========================================================================
-  const std::string get_name() { return name_; }
-  Module<T> &get_submodule(const std::string name) { return submodules_[name]; }
-
-  //===========================================================================
   // Pack and unpack
   //===========================================================================
   void pack_weights() {
@@ -131,7 +133,7 @@ class Module {
   //===========================================================================
   // Pretty print
   //===========================================================================
-  std::string str() const {
+  const std::string str() const {
     std::string s = fmt::format("Module name={}", name_);
     if (!params_.empty()) {
       s += " param=[";
@@ -159,4 +161,4 @@ class Module {
   // Inference
   //===========================================================================
   virtual void forward() = 0;
-};  // class Module
+}; // class Module

@@ -11,8 +11,10 @@ void matmul_2d_out(const Tensor<T> &x, const Tensor<T> &y, Tensor<T> &z) {
   ASSERT(x.ndim() == 3, x.shape());
   ASSERT(y.ndim() == 3, y.shape());
   ASSERT(z.ndim() == 3, z.shape());
-  ASSERT(x.shape(2) == y.shape(2));
-  ASSERT(x.shape(2) == z.shape(2));
+  ASSERT(x.shape(2) == y.shape(2),
+         fmt::format("x.shape()={}, y.shape()={}", x.shape(), y.shape()));
+  ASSERT(x.shape(2) == z.shape(2),
+         fmt::format("x.shape()={}, z.shape()={}", x.shape(), z.shape()));
 
   auto K = x.shape(0);
   auto N = x.shape(1);
@@ -97,4 +99,4 @@ void matmul_2d_out(const Tensor<T> &x, const Tensor<T> &y, Tensor<T> &z) {
 //   z.view(z_shape);
 // }
 
-}  // namespace func
+} // namespace func
