@@ -26,6 +26,7 @@ all_tests = [
   'norm',
   'rope',
   'sampling',
+  'softmax',
 ]
 
 foreach t : all_tests
