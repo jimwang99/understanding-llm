@@ -129,6 +129,9 @@ public:
   const T *data() const { return data_.data(); }
   T *mutable_data() { return data_.data(); }
 
+  const std::vector<T> &vec() const { return data_; }
+  std::vector<T> &mutable_vec() { return data_; }
+
   //============================================================================
   // properties
   //============================================================================

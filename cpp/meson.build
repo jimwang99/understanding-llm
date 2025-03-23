@@ -25,6 +25,7 @@ all_tests = [
   'activation',
   'norm',
   'rope',
+  'sampling',
 ]
 
 foreach t : all_tests

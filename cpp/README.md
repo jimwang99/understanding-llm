@@ -9,7 +9,7 @@ TODO List
 | `func::matmul`        | ✅    | ✅    |
 | `func::activation`    | ✅    | ✅    |
 | `func::norm`          | ✅    | ✅    |
-| `func::rope`          |      |      |
+| `func::rope`          | ✅    | ✅    |
 | `func::sampling`      |      |      |
 | `func::sdpa`          |      |      |
 | `func::softmax`       |      |      |
