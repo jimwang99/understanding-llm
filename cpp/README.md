@@ -5,6 +5,7 @@ TODO List
   - [x] tensor
   - [x] module
 - [ ] Func
+  - [x] Elem_wise
   - [ ] 
 
 - [ ] llama.hpp
