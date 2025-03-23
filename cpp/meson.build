@@ -27,6 +27,7 @@ all_tests = [
   'rope',
   'sampling',
   'softmax',
+  'transpose',
 ]
 
 foreach t : all_tests

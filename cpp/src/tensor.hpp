@@ -40,6 +40,10 @@ public:
       at(i) = value.at(i);
     }
   }
+  // copy constructor
+  Tensor(const Tensor &other)
+      : name_(other.name_), data_(other.data_), shape_(other.shape_),
+        strides_(other.strides_) {}
 
   //============================================================================
   // modifiers

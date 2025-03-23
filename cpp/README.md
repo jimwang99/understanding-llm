@@ -11,8 +11,7 @@ TODO List
 | `func::norm`            | ✅    | ✅    |
 | `func::rope`            | ✅    | ✅    |
 | `func::sampling_greedy` | ✅    | ✅    |
-|                         |      |      |
-| `func::softmax`         |      |      |
+| `func::softmax`         | ✅    | ✅    |
 | `func::transpose_1_2`   |      |      |
 | `func::sdpa`            |      |      |
 | `module::embedding`     |      |      |
