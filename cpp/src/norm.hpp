@@ -7,13 +7,13 @@ namespace func {
 
 template <typename T>
 void rms_norm_out(const Tensor<T> &ti, Tensor<T> &to, const float eps = 1e-5) {
-  _ASSERT(ti.ndim() >= 1, ti.shape());
-  _ASSERT(to.ndim() >= 1, to.shape());
+  ASSERT(ti.ndim() >= 1, ti.shape());
+  ASSERT(to.ndim() >= 1, to.shape());
   auto dim = ti.shape(0);
   auto batch = ti.size() / dim;
 
-  _ASSERT(to.shape(0) == dim, to.shape());
-  _ASSERT(to.size() == batch * dim, to.shape());
+  ASSERT(to.shape(0) == dim, to.shape());
+  ASSERT(to.size() == batch * dim, to.shape());
 
   for (size_t b = 0; b < batch; ++b) {
     // sum of x^2
@@ -29,4 +29,4 @@ void rms_norm_out(const Tensor<T> &ti, Tensor<T> &to, const float eps = 1e-5) {
   }
 };
 
-}  // namespace func
+} // namespace func

@@ -8,7 +8,7 @@ TODO List
 | `func::elem_wise`     | ✅    | ✅    |
 | `func::matmul`        | ✅    | ✅    |
 | `func::activation`    | ✅    | ✅    |
-| `func::norm`          |      |      |
+| `func::norm`          | ✅    | ✅    |
 | `func::rope`          |      |      |
 | `func::sampling`      |      |      |
 | `func::sdpa`          |      |      |

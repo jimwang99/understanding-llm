@@ -4,9 +4,6 @@
 #include <fmt/ranges.h>
 
 #include "logger.hpp"
-#include <cassert>
-#include <cstring>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -92,7 +89,6 @@ public:
         at(i) = rand() / T(RAND_MAX) * (max - min) + min;
       }
     }
-    throw std::runtime_error("Not implemented");
   }
 
   void operator=(const Tensor<T> &other) {
