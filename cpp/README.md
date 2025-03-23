@@ -3,7 +3,9 @@ TODO List
 - [x] Basics
   - [x] logger
   - [x] tensor
-  - [ ] module
+  - [x] module
+- [ ] Func
+  - [ ] 
 
 - [ ] llama.hpp
     - [ ] embedding.hpp

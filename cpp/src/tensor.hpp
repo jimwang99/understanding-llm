@@ -24,18 +24,17 @@ public:
   // constructors
   //============================================================================
   // default constructor
-  Tensor(const std::string name = "Unnamed-Tensor")
-      : name_(name), data_(), shape_(), strides_() {
+  Tensor(const std::string name) : name_(name), data_(), shape_(), strides_() {
     reshape({1});
   }
   // constructor with shape
-  Tensor(const TensorShape shape, const std::string name = "Unnamed-Tensor")
+  Tensor(const std::string name, const TensorShape shape)
       : name_(name), data_(), shape_(), strides_() {
     reshape(shape);
   }
   // constructor with shape and iniital values
-  Tensor(const TensorShape shape, const std::vector<T> value,
-         const std::string name = "Unnamed-Tensor")
+  Tensor(const std::string name, const TensorShape shape,
+         const std::vector<T> value)
       : name_(name), data_(), shape_(), strides_() {
     reshape(shape);
     for (size_t i = 0; i < value.size(); ++i) {

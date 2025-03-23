@@ -14,21 +14,19 @@ public:
   TestAffine(const std::string name, const size_t size, CTensorPtr<float> in,
              TensorPtr<float> out)
       : Module<float>(name), in_(in), out_(out),
-        weight_(std::make_shared<Tensor<float>>(std::vector<size_t>{size},
-                                                "weight1")),
-        bias_(std::make_shared<Tensor<float>>(std::vector<size_t>{size},
-                                              "bias1")) {
+        weight_(
+            std::make_shared<Tensor<float>>("weight1", TensorShape({size}))),
+        bias_(std::make_shared<Tensor<float>>("bias1", TensorShape({size}))) {
     MINFO("Create TestAffine");
     add_param("size", size);
     add_weight(weight_);
     add_weight(bias_);
     add_input(in_);
     add_output(out_);
-    MASSERT(in_->size() == size,
-            fmt::format("Input size {} must match size {}", in_->size(), size));
-    MASSERT(
-        out_->size() == size,
-        fmt::format("Output size {} must match size {}", out_->size(), size));
+    MASSERT(in_->size() == size, "Input size {} must match size {}",
+            in_->size(), size);
+    MASSERT(out_->size() == size, "Output size {} must match size {}",
+            out_->size(), size);
   }
 
   ~TestAffine() override { MINFO("Destroy TestAffine"); }
@@ -86,8 +84,8 @@ private:
 public:
   TestTop()
       : Module<float>("top"),
-        a_(std::make_shared<Tensor<float>>(TensorShape{3}, "a")),
-        b_(std::make_shared<Tensor<float>>(TensorShape{3}, "b")),
+        a_(std::make_shared<Tensor<float>>("a", TensorShape({3}))),
+        b_(std::make_shared<Tensor<float>>("b", TensorShape({3}))),
         m_affine_(std::make_shared<TestAffine>("affine", 3, a_, b_)),
         m_half_(std::make_shared<TestHalf>("half", 3, b_)) {
     MINFO("Create TestTop");
@@ -124,10 +122,10 @@ protected:
     logger_ = setup_logger("ModuleTest");
     MINFO("SetUp start");
 
-    tensor3a = std::make_shared<Tensor<float>>(TensorShape{3}, "tensor3a");
-    tensor3b = std::make_shared<Tensor<float>>(TensorShape{3}, "tensor3b");
-    tensor4a = std::make_shared<Tensor<float>>(TensorShape{4}, "tensor4a");
-    tensor4b = std::make_shared<Tensor<float>>(TensorShape{4}, "tensor4b");
+    tensor3a = std::make_shared<Tensor<float>>("tensor3a", TensorShape({3}));
+    tensor3b = std::make_shared<Tensor<float>>("tensor3b", TensorShape({3}));
+    tensor4a = std::make_shared<Tensor<float>>("tensor4a", TensorShape({4}));
+    tensor4b = std::make_shared<Tensor<float>>("tensor4b", TensorShape({4}));
 
     tensor3a->linspace(0.0f, 1.0f);
     tensor3b->linspace(2.0f, 3.0f);

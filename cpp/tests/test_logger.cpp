@@ -144,6 +144,28 @@ TEST_F(LoggerTest, MacroLogging) {
   EXPECT_TRUE(contains(log_content, "Global trace"));
 }
 
+TEST_F(LoggerTest, MacroLoggingWithArgs) {
+  // Set up a test logger with our stream sink
+  std::vector<spdlog::sink_ptr> sinks{stream_sink, stdout_sink, file_sink};
+  auto logger = setup_logger("default", "trace", sinks);
+
+  // Log messages using the global macros with arguments
+  CRITICAL("Global critical with arg: {}", 42);
+  ERROR("Global error with arg: {}", 42);
+  WARN("Global warn with arg: {}", 42);
+  INFO("Global info with arg: {}", 42);
+  DEBUG("Global debug with arg: {}", 42);
+  TRACE("Global trace with arg: {}", 42);
+
+  // Verify logs were generated
+  std::string log_content = log_stream->str();
+  EXPECT_FALSE(log_content.empty());
+  EXPECT_TRUE(contains(log_content, "Global critical with arg: 42"));
+  EXPECT_TRUE(contains(log_content, "Global error with arg: 42"));
+  EXPECT_TRUE(contains(log_content, "Global warn with arg: 42"));
+  EXPECT_TRUE(contains(log_content, "Global info with arg: 42"));
+}
+
 // Test for ASSERT macro
 TEST_F(LoggerTest, AssertMacro) {
   // Set up a test logger with our stream sink

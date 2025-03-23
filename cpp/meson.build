@@ -2,7 +2,7 @@ project(
   'framework',
   'cpp',
   version: '0.1',
-  default_options: ['warning_level=3', 'cpp_std=c++20'],
+  default_options: ['warning_level=3', 'cpp_std=c++17'],
 )
 
 add_project_arguments('-Wno-sign-compare', language: 'cpp')
@@ -15,7 +15,7 @@ deps = [dep_fmt, dep_spdlog, dep_gtest]
 incdir = include_directories('src')
 srcs = ['src/logger.cpp']
 
-all_tests = ['env', 'logger', 'tensor', 'module']
+all_tests = ['env', 'logger', 'tensor', 'module', 'elem_wise']
 
 foreach t : all_tests
   exe = executable(
@@ -31,4 +31,3 @@ endforeach
 # pybind11_incdir = py.get_install_dir() / 'pybind11' / 'include'
 # message('Python include dir: ' + pybind11_incdir)
 # pybind11_dep = dependency('pybind11', required: true)
-# message('Python dependency: ' + pybind11_dep.name())

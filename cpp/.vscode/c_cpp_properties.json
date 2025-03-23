@@ -6,7 +6,8 @@
                 "${default}",
                 "/opt/homebrew/Cellar/fmt/11.1.4/include",
                 "/opt/homebrew/Cellar/spdlog/1.15.1/include",
-                "/"
+                "/",
+                "/opt/homebrew/Cellar/googletest/1.15.2/include"
             ],
             "defines": [],
             "macFrameworkPath": [

@@ -17,7 +17,7 @@ LoggerPtr setup_logger(const std::string &name = "default",
                        const std::string &level = LOG_LEVEL,
                        const std::vector<spdlog::sink_ptr> &sinks = {});
 
-std::shared_ptr<spdlog::logger> get_logger(const std::string &name = "default");
+LoggerPtr get_logger(const std::string &name = "default");
 
 #define MCRITICAL(...) SPDLOG_LOGGER_CRITICAL(this->logger_, __VA_ARGS__)
 #define MERROR(...) SPDLOG_LOGGER_ERROR(this->logger_, __VA_ARGS__)
