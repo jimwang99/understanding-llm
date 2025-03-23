@@ -1,14 +1,21 @@
 TODO List
 
-- [x] Basics
-  - [x] logger
-  - [x] tensor
-  - [x] module
-- [ ] Func
-  - [x] Elem_wise
-  - [ ] 
-
-- [ ] llama.hpp
-    - [ ] embedding.hpp
-    - [ ] layer.hpp
-    - [ ] 
+| NAME                  | CODE | TEST |
+| --------------------- | ---- | ---- |
+| `logger`              | ✅    | ✅    |
+| `tensor`              | ✅    | ✅    |
+| `module`              | ✅    | ✅    |
+| `func::elem_wise`     | ✅    | ✅    |
+| `func::matmul`        | ✅    | ✅    |
+| `func::activation`    | ✅    | ✅    |
+| `func::norm`          |      |      |
+| `func::rope`          |      |      |
+| `func::sampling`      |      |      |
+| `func::sdpa`          |      |      |
+| `func::softmax`       |      |      |
+| `func::transpose_1_2` |      |      |
+| `module::embedding`   |      |      |
+| `module::linear`      |      |      |
+| `module::llama`       |      |      |
+| `module::layer`       |      |      |
+| `module::kv_cache`    |      |      |

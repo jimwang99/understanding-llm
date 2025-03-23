@@ -24,6 +24,8 @@ public:
   // constructors
   //============================================================================
   // default constructor
+  Tensor() : name_(), data_(), shape_(), strides_() { reshape({1}); }
+
   Tensor(const std::string name) : name_(name), data_(), shape_(), strides_() {
     reshape({1});
   }
@@ -91,6 +93,14 @@ public:
       }
     }
     throw std::runtime_error("Not implemented");
+  }
+
+  void operator=(const Tensor<T> &other) {
+    set_name(other.name());
+    reshape(other.shape());
+    for (size_t i = 0; i < size(); ++i) {
+      at(i) = other.at(i);
+    }
   }
 
   //============================================================================

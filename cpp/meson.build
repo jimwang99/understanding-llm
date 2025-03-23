@@ -15,7 +15,7 @@ deps = [dep_fmt, dep_spdlog, dep_gtest]
 incdir = include_directories('src')
 srcs = ['src/logger.cpp']
 
-all_tests = ['env', 'logger', 'tensor', 'module', 'elem_wise', 'matmul']
+all_tests = ['env', 'logger', 'tensor', 'module', 'elem_wise', 'matmul', 'activation']
 
 foreach t : all_tests
   exe = executable(
@@ -29,4 +29,3 @@ endforeach
 
 # py = import('python').find_installation('python3', required: true)
 # pybind11_incdir = py.get_install_dir() / 'pybind11' / 'include'
-# message('Python include dir: ' + pybind11_incdir)
