@@ -10,7 +10,6 @@ namespace detail {
 
 template <typename T, char OP>
 void _op_inline(Tensor<T> &x, const Tensor<T> &y) {
-  auto logger = setup_logger();
   ASSERT(x.shape() == y.shape(), "shape mismatch: x={} y={}", x.shape(),
          y.shape());
 
@@ -36,7 +35,6 @@ void _op_inline(Tensor<T> &x, const Tensor<T> &y) {
   TRACE("result {}", x.str());
 } // _op_inline
 template <typename T, char OP> void _op_scalar_inline(Tensor<T> &x, T scalar) {
-  auto logger = setup_logger();
   TRACE("tensor {}", x.str());
   TRACE("scalar {}", scalar);
 
@@ -64,7 +62,7 @@ template <typename T, char OP> void _op_scalar_inline(Tensor<T> &x, T scalar) {
 
 template <typename T, char OP>
 void _op_broadcast_inline(Tensor<T> &x, const Tensor<T> &y) {
-  auto logger = setup_logger();
+  auto logger = get_logger();
   ASSERT(x.ndim() == 2, "shape mismatch: x must be 2D, got shape={}",
          x.shape());
   ASSERT(y.ndim() == 1, "shape mismatch: y must be 1D, got shape={}",

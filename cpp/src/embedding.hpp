@@ -4,7 +4,9 @@
 #include "tensor.hpp"
 
 namespace func {
-template <typename T> void embedding_out(const Tensor<T> &token, const Tensor<T> &weight, Tensor<T> &output) {
+template <typename T>
+void embedding_out(const Tensor<T> &token, const Tensor<T> &weight,
+                   Tensor<T> &output) {
   auto dim = weight.shape(0);
   auto shape = token.shape();
   shape.insert(shape.begin(), dim);
@@ -16,35 +18,31 @@ template <typename T> void embedding_out(const Tensor<T> &token, const Tensor<T>
       output.at(i, d) = weight.at(d, token.at(i));
     }
   }
-}  // embedding_out
-}  // namespace func
+} // embedding_out
+} // namespace func
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace module {
 
-template <typename T>
-class Embedding : public virtual Module<T> {
- protected:
+template <typename T> class Embedding : public virtual Module<T> {
+protected:
   size_t vocab_;
   size_t dim_;
 
-  Tensor<T> embedding_;
+  CTensorPtr<size_t> token_;
+  TensorPtr<T> emb_;
+  TensorPtr<T> weight_;
 
-  Tensor<T> &input_;
-  Tensor<T> &output_;
-
- public:
-  Embedding(std::string name, size_t vocab, size_t dim, Tensor<T> &input, Tensor<T> &output) : Module<T>(name), vocab_(vocab),
-        dim_(dim),
-        embedding_({vocab, dim}, "embedding"),
-        input_(input),
-        output_(output),
-        logger_(setup_logger("Embedding")) {
-    add_param("Vocab", vocab_);
-    add_param("Dim", dim_);
-    add_weight(embedding_);
-    add_input(input_);
+public:
+  Embedding(const std::string name, const size_t vocab, const size_t dim,
+            CTensorPtr<size_t> token, TensorPtr<T> emb)
+      : Module<T>(name), vocab_(vocab), dim_(dim), token_(token), emb_(emb),
+        weight_("weight", {vocab, dim}), logger_(get_logger("embedding")) {
+    add_param("vocab", vocab_);
+    add_param("dim", dim_);
+    add_weight(weight_);
+    add_input(token_);
     add_output(output_);
     DEBUG("New module of Embedding:\n{}", this->str());
   }
@@ -55,6 +53,6 @@ class Embedding : public virtual Module<T> {
     ASSERT(output_.shape(0) == dim_, "dim_={} output_={}", dim_, output_.str());
     func::embedding_out(input_, embedding_, output_);
   }
-};  // class Embedding
+}; // class Embedding
 
-}  // namespace module
+} // namespace module

@@ -14,7 +14,7 @@ TEST(test_tinystories260k, basic) {
 }
 
 int main(int argc, char **argv) {
-  setup_logger("default");
+  get_logger("default");
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

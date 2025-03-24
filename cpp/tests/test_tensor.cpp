@@ -1,4 +1,3 @@
-#include "../src/logger.hpp"
 #include "../src/tensor.hpp"
 #include <gtest/gtest.h>
 #include <sstream>
@@ -13,26 +12,26 @@ protected:
 TEST_F(TensorTest, DefaultConstructor) {
   Tensor<float> tensor("test-tensor");
   EXPECT_EQ(tensor.name(), "test-tensor");
-  EXPECT_EQ(tensor.size(), 1);
-  EXPECT_EQ(tensor.ndim(), 1);
+  EXPECT_EQ(tensor.size(), 1u);
+  EXPECT_EQ(tensor.ndim(), 1u);
 }
 
 TEST_F(TensorTest, ShapeConstructor) {
   Tensor<float> tensor("shape-tensor", {2, 3});
   EXPECT_EQ(tensor.name(), "shape-tensor");
-  EXPECT_EQ(tensor.size(), 6);
-  EXPECT_EQ(tensor.ndim(), 2);
-  EXPECT_EQ(tensor.shape(0), 2);
-  EXPECT_EQ(tensor.shape(1), 3);
+  EXPECT_EQ(tensor.size(), 6u);
+  EXPECT_EQ(tensor.ndim(), 2u);
+  EXPECT_EQ(tensor.shape(0), 2u);
+  EXPECT_EQ(tensor.shape(1), 3u);
 }
 
 TEST_F(TensorTest, ValueConstructor) {
   Tensor<int> tensor("value-tensor", {2, 3}, {1, 2, 3, 4, 5, 6});
   EXPECT_EQ(tensor.name(), "value-tensor");
-  EXPECT_EQ(tensor.size(), 6);
-  EXPECT_EQ(tensor.ndim(), 2);
-  EXPECT_EQ(tensor.shape(0), 2);
-  EXPECT_EQ(tensor.shape(1), 3);
+  EXPECT_EQ(tensor.size(), 6u);
+  EXPECT_EQ(tensor.ndim(), 2u);
+  EXPECT_EQ(tensor.shape(0), 2u);
+  EXPECT_EQ(tensor.shape(1), 3u);
 
   EXPECT_EQ(tensor.at(0), 1);
   EXPECT_EQ(tensor.at(1), 2);
@@ -53,9 +52,9 @@ TEST_F(TensorTest, View) {
   tensor.linspace(0.0f, 1.0f);
 
   tensor.view({2, 3});
-  EXPECT_EQ(tensor.ndim(), 2);
-  EXPECT_EQ(tensor.shape(0), 2);
-  EXPECT_EQ(tensor.shape(1), 3);
+  EXPECT_EQ(tensor.ndim(), 2u);
+  EXPECT_EQ(tensor.shape(0), 2u);
+  EXPECT_EQ(tensor.shape(1), 3u);
 
   EXPECT_EQ(tensor.at(0, 0), 0.0f);
   EXPECT_EQ(tensor.at(1, 0), 1.0f);
@@ -68,19 +67,19 @@ TEST_F(TensorTest, View) {
 // Test modifiers
 TEST_F(TensorTest, Reshape) {
   Tensor<float> tensor("reshape-tensor", {2, 3});
-  EXPECT_EQ(tensor.size(), 6);
-  EXPECT_EQ(tensor.shape(0), 2);
-  EXPECT_EQ(tensor.shape(1), 3);
+  EXPECT_EQ(tensor.size(), 6u);
+  EXPECT_EQ(tensor.shape(0), 2u);
+  EXPECT_EQ(tensor.shape(1), 3u);
 
   tensor.reshape({2, 4});
-  EXPECT_EQ(tensor.size(), 8);
-  EXPECT_EQ(tensor.shape(0), 2);
-  EXPECT_EQ(tensor.shape(1), 4);
+  EXPECT_EQ(tensor.size(), 8u);
+  EXPECT_EQ(tensor.shape(0), 2u);
+  EXPECT_EQ(tensor.shape(1), 4u);
 
   tensor.reshape({10});
-  EXPECT_EQ(tensor.size(), 10);
-  EXPECT_EQ(tensor.ndim(), 1);
-  EXPECT_EQ(tensor.shape(0), 10);
+  EXPECT_EQ(tensor.size(), 10u);
+  EXPECT_EQ(tensor.ndim(), 1u);
+  EXPECT_EQ(tensor.shape(0), 10u);
 }
 
 TEST_F(TensorTest, SetName) {
@@ -190,9 +189,9 @@ TEST_F(TensorTest, DataAccessors) {
 TEST_F(TensorTest, Properties) {
   Tensor<float> tensor("properties-tensor", {2, 3, 4});
 
-  EXPECT_EQ(tensor.size(), 24);
+  EXPECT_EQ(tensor.size(), 24u);
   EXPECT_EQ(tensor.nbytes(), 24 * sizeof(float));
-  EXPECT_EQ(tensor.ndim(), 3);
+  EXPECT_EQ(tensor.ndim(), 3u);
 
   std::vector<size_t> expected_shape = {2, 3, 4};
   EXPECT_EQ(tensor.shape(), expected_shape);

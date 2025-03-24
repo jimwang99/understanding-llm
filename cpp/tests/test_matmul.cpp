@@ -5,13 +5,8 @@
 
 class MatmulTest : public ::testing::Test {
 protected:
-  LoggerPtr logger_;
-
-  void SetUp() override {
-    logger_ = setup_logger();
-    MINFO("SetUp start");
-  }
-  void TearDown() override { MINFO("TearDown"); }
+  void SetUp() override { DEBUG("SetUp start"); }
+  void TearDown() override { DEBUG("TearDown"); }
 };
 
 // Test basic matrix multiplication

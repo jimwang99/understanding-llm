@@ -34,12 +34,12 @@ template <typename T> void tranpose_1_2_inline(Tensor<T> &x) {
       addr_new;
   size_t base_addr = reinterpret_cast<size_t>(x.data());
   size_t size = D0 * sizeof(T);
-  for (auto i3 = 0; i3 < D3; ++i3) {
+  for (size_t i3 = 0; i3 < D3; ++i3) {
     offset3 = i3 * s3;
-    for (auto i2 = 0; i2 < D2; ++i2) {
+    for (size_t i2 = 0; i2 < D2; ++i2) {
       offset2_old = i2 * s2old + offset3;
       offset2_new = i2 * s1 + offset3;
-      for (auto i1 = 0; i1 < D1; ++i1) {
+      for (size_t i1 = 0; i1 < D1; ++i1) {
         if (i1 == i2) {
           continue;
         }

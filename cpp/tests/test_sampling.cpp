@@ -10,8 +10,8 @@ TEST(SamplingTest, GreedySamplingBasic) {
 
   func::sampling_greedy(logit, token);
 
-  EXPECT_EQ(token.at(0, 0), 2);
-  EXPECT_EQ(token.at(1, 0), 2);
+  EXPECT_EQ(token.at(0, 0), 2u);
+  EXPECT_EQ(token.at(1, 0), 2u);
 }
 
 TEST(SamplingTest, GreedySamplingLarger) {
@@ -22,10 +22,10 @@ TEST(SamplingTest, GreedySamplingLarger) {
 
   func::sampling_greedy(logit, token);
 
-  EXPECT_EQ(token.at(0, 0), 1);
-  EXPECT_EQ(token.at(1, 0), 0);
-  EXPECT_EQ(token.at(0, 1), 1);
-  EXPECT_EQ(token.at(1, 1), 0);
+  EXPECT_EQ(token.at(0, 0), 1u);
+  EXPECT_EQ(token.at(1, 0), 0u);
+  EXPECT_EQ(token.at(0, 1), 1u);
+  EXPECT_EQ(token.at(1, 1), 0u);
 }
 
 TEST(SamplingTest, GreedySamplingEqualValues) {
@@ -35,7 +35,7 @@ TEST(SamplingTest, GreedySamplingEqualValues) {
 
   func::sampling_greedy(logit, token);
 
-  EXPECT_EQ(token.at(0, 0), 0);
+  EXPECT_EQ(token.at(0, 0), 0u);
 }
 
 TEST(SamplingTest, GreedySamplingInvalidShapes) {

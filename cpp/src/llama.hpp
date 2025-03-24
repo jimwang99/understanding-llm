@@ -82,7 +82,7 @@ public:
         logit_({hp_.B, hp_.Lm, hp_.V}, "Logit"),
         m_embedding_(name + ".embedding", hp_.V, hp_.D, token_, emb_),
         m_layers_(), m_output_(name + ".output", hp_.D, hp_.V, emb_, logit_) {
-    this->logger_ = setup_logger("llama", "trace");
+    this->logger_ = get_logger("llama", "trace");
 
     add_submodule(m_embedding_);
     for (auto i = 0; i < hp_.Y; ++i) {

@@ -1,5 +1,6 @@
 #include "../src/logger.hpp"
 #include <gtest/gtest.h>
+#include <iostream>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/ostream_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -40,15 +41,15 @@ protected:
 
 // Test logger setup with default parameters
 TEST_F(LoggerTest, DefaultSetupLogger) {
-  auto logger = setup_logger();
+  auto logger = get_logger();
   ASSERT_NE(logger, nullptr);
   EXPECT_EQ(logger->name(), "default");
-  EXPECT_EQ(logger->level(), spdlog::level::trace);
+  EXPECT_EQ(logger->level(), spdlog::level::from_str(LOG_LEVEL));
 }
 
 // Test logger setup with custom name and level
 TEST_F(LoggerTest, CustomSetupLogger) {
-  auto logger = setup_logger("custom_logger", "error");
+  auto logger = get_logger("custom_logger", "error");
   ASSERT_NE(logger, nullptr);
   EXPECT_EQ(logger->name(), "custom_logger");
   EXPECT_EQ(logger->level(), spdlog::level::err);
@@ -57,7 +58,7 @@ TEST_F(LoggerTest, CustomSetupLogger) {
 // Test logger setup with custom sink
 TEST_F(LoggerTest, SetupLoggerWithSink) {
   std::vector<spdlog::sink_ptr> sinks{stream_sink, stdout_sink, file_sink};
-  auto logger = setup_logger("sink_logger", "info", sinks);
+  auto logger = get_logger("sink_logger", "info", sinks);
 
   ASSERT_NE(logger, nullptr);
   EXPECT_EQ(logger->name(), "sink_logger");
@@ -75,10 +76,7 @@ TEST_F(LoggerTest, SetupLoggerWithSink) {
 
 // Test get_logger retrieves the correct logger
 TEST_F(LoggerTest, GetLogger) {
-  // First, set up a logger
-  auto logger1 = setup_logger("test_get", "debug");
-
-  // Then try to get it
+  auto logger1 = get_logger("test_get", "debug");
   auto logger2 = get_logger("test_get");
 
   ASSERT_NE(logger2, nullptr);
@@ -89,27 +87,20 @@ TEST_F(LoggerTest, GetLogger) {
   EXPECT_EQ(logger1, logger2);
 }
 
-// Test get_logger with non-existent logger
-TEST_F(LoggerTest, GetNonExistentLogger) {
-  // Should return nullptr for a logger that doesn't exist
-  auto logger = get_logger("non_existent");
-  EXPECT_EQ(logger, nullptr);
-}
-
 // Test for the logging macros
 class LoggableClass {
 public:
   LoggableClass(const std::vector<spdlog::sink_ptr> &sinks) {
-    logger_ = setup_logger("class_logger", "trace", sinks);
+    logger_ = get_logger("class_logger", "trace", sinks);
   }
 
   void testLogs() {
-    MCRITICAL("Critical message");
-    MERROR("Error message");
-    MWARN("Warning message");
-    MINFO("Info message");
-    MDEBUG("Debug message");
-    MTRACE("Trace message");
+    MLOG_CRITICAL("Critical message");
+    MLOG_ERROR("Error message");
+    MLOG_WARN("Warning message");
+    MLOG_INFO("Info message");
+    MLOG_DEBUG("Debug message");
+    MLOG_TRACE("Trace message");
   }
 
   void testAssert(bool condition) { MASSERT(condition, "Assert failed"); }
@@ -121,17 +112,17 @@ private:
 TEST_F(LoggerTest, MacroLogging) {
   // Set up a test logger with our stream sink
   std::vector<spdlog::sink_ptr> sinks{stream_sink, stdout_sink, file_sink};
-  auto logger = setup_logger("default", "trace", sinks);
+  auto logger = get_logger("default", "trace", sinks);
   EXPECT_EQ(logger->name(), "default");
   EXPECT_EQ(logger->level(), spdlog::level::trace);
 
   // Log messages using the global macros
-  CRITICAL("Global critical");
-  ERROR("Global error");
-  WARN("Global warn");
-  INFO("Global info");
-  DEBUG("Global debug");
-  TRACE("Global trace");
+  LOG_CRITICAL("Global critical");
+  LOG_ERROR("Global error");
+  LOG_WARN("Global warn");
+  LOG_INFO("Global info");
+  LOG_DEBUG("Global debug");
+  LOG_TRACE("Global trace");
 
   // Verify at least some logs were generated
   std::string log_content = log_stream->str();
@@ -147,15 +138,15 @@ TEST_F(LoggerTest, MacroLogging) {
 TEST_F(LoggerTest, MacroLoggingWithArgs) {
   // Set up a test logger with our stream sink
   std::vector<spdlog::sink_ptr> sinks{stream_sink, stdout_sink, file_sink};
-  auto logger = setup_logger("default", "trace", sinks);
+  auto logger = get_logger("default", "trace", sinks);
 
   // Log messages using the global macros with arguments
-  CRITICAL("Global critical with arg: {}", 42);
-  ERROR("Global error with arg: {}", 42);
-  WARN("Global warn with arg: {}", 42);
-  INFO("Global info with arg: {}", 42);
-  DEBUG("Global debug with arg: {}", 42);
-  TRACE("Global trace with arg: {}", 42);
+  LOG_CRITICAL("Global critical with arg: {}", 42);
+  LOG_ERROR("Global error with arg: {}", 42);
+  LOG_WARN("Global warn with arg: {}", 42);
+  LOG_INFO("Global info with arg: {}", 42);
+  LOG_DEBUG("Global debug with arg: {}", 42);
+  LOG_TRACE("Global trace with arg: {}", 42);
 
   // Verify logs were generated
   std::string log_content = log_stream->str();
@@ -166,11 +157,43 @@ TEST_F(LoggerTest, MacroLoggingWithArgs) {
   EXPECT_TRUE(contains(log_content, "Global info with arg: 42"));
 }
 
-// Test for ASSERT macro
-TEST_F(LoggerTest, AssertMacro) {
+TEST_F(LoggerTest, MacroLoggingWithName) {
   // Set up a test logger with our stream sink
   std::vector<spdlog::sink_ptr> sinks{stream_sink, stdout_sink, file_sink};
-  auto logger = setup_logger("default", "trace", sinks);
+  auto logger_name = "custom_logger";
+  auto logger = get_logger(logger_name, "trace", sinks);
+  EXPECT_EQ(logger->name(), logger_name);
+  EXPECT_EQ(logger->level(), spdlog::level::trace);
+
+  // Log messages using the global macros
+  NLOG_CRITICAL("Global critical");
+  NLOG_ERROR("Global error");
+  NLOG_WARN("Global warn");
+  NLOG_INFO("Global info");
+  NLOG_DEBUG("Global debug");
+  NLOG_TRACE("Global trace");
+
+  // Verify at least some logs were generated
+  std::string log_content = log_stream->str();
+  EXPECT_FALSE(log_content.empty());
+  EXPECT_TRUE(contains(log_content, "Global critical"));
+  EXPECT_TRUE(contains(log_content, "Global error"));
+  EXPECT_TRUE(contains(log_content, "Global warn"));
+  EXPECT_TRUE(contains(log_content, "Global info"));
+  EXPECT_TRUE(contains(log_content, "Global debug"));
+  EXPECT_TRUE(contains(log_content, "Global trace"));
+}
+
+// Test for ASSERT macro
+TEST_F(LoggerTest, AssertMacro) {
+#ifdef NDEBUG
+  std::cout << "NDEBUG is defined - assertions are disabled\n";
+#else
+  std::cout << "NDEBUG is not defined - assertions are enabled\n";
+#endif
+  // Set up a test logger with our stream sink
+  std::vector<spdlog::sink_ptr> sinks{stream_sink, stdout_sink, file_sink};
+  auto logger = get_logger("default", "trace", sinks);
 
   // Call the assert method with true (should not log or assert)
   ASSERT(true, "Assert failed");

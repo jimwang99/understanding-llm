@@ -2,30 +2,36 @@
 
 #include <cmath>
 
-#include "elem_wise.hpp"
 #include "logger.hpp"
 #include "matmul.hpp"
+#include "softmax.hpp"
 #include "tensor.hpp"
 
 namespace func {
 
 template <typename T>
-void init_mask(Tensor<T> &mask, const size_t max_seq_len) {
-  mask.reshape({1, 1, max_seq_len, max_seq_len});
-  mask.zeros();
+void init_causal_attn_mask(Tensor<T> &mask, const size_t max_seq_len) {
+  mask.reshape({max_seq_len, max_seq_len});
+  for (size_t i = 0; i < max_seq_len; ++i) {
+    for (size_t j = 0; j < max_seq_len; ++j) {
+      if (j > i) {
+        mask.at(j, i) = -1.0f * std::numeric_limits<T>::infinity();
+      } else {
+        mask.at(j, i) = 0.0f;
+      }
+    }
+  }
 }
 
 template <typename T>
-void sdpa_out(Tensor<T> &q, Tensor<T> &k, Tensor<T> &v, Tensor<T> &attn, const Tensor<T> &mask) {
-  ASSERT(q.ndim() == 4, q.shape());
-  ASSERT(k.ndim() == 4, k.shape());
-  ASSERT(v.ndim() == 4, v.shape());
+void sdpa_out(Tensor<T> &q, Tensor<T> &k, Tensor<T> &v, Tensor<T> &attn,
+              const Tensor<T> &mask) {
+  auto logger_name = "SDPA";
+  get_logger(logger_name, "info");
 
-  ASSERT(q.shape(0) == k.shape(0), "Q={} K={}", q.shape(), k.shape());
-  ASSERT(q.shape(2) == k.shape(2), "Q={} K={}", q.shape(), k.shape());
-  ASSERT(q.shape(3) == k.shape(3), "Q={} K={}", q.shape(), k.shape());
-
-  ASSERT(k.shape() == v.shape(), "K={} V={}", k.shape(), v.shape());
+  NASSERT(q.ndim() == 4, q.shape());
+  NASSERT(k.ndim() == 4, k.shape());
+  NASSERT(v.ndim() == 4, v.shape());
 
   auto B = q.shape(3);
   auto N = q.shape(2);
@@ -33,37 +39,71 @@ void sdpa_out(Tensor<T> &q, Tensor<T> &k, Tensor<T> &v, Tensor<T> &attn, const T
   auto Lq = q.shape(1);
   auto Lkv = k.shape(1);
 
-  // Q⋅Kᵀ
-  q.view({B * N, Lq, D});
-  k.view({B * N, Lkv, D});
-  attn.view({B * N, Lq, Lkv});
+  NASSERT(k.shape() == v.shape(), "K={} V={}", k.shape(), v.shape());
+
+  NASSERT(k.shape(0) == D, "Q={} K={}", q.shape(), k.shape());
+  NASSERT(k.shape(2) == N, "Q={} K={}", q.shape(), k.shape());
+  NASSERT(k.shape(3) == B, "Q={} K={}", q.shape(), k.shape());
+
+  NASSERT(attn.ndim() == 4, attn.shape());
+  NASSERT(attn.shape(0) == Lkv, "Q={} attn={}", q.shape(), attn.shape());
+  NASSERT(attn.shape(1) == Lq, "Q={} attn={}", q.shape(), attn.shape());
+  NASSERT(attn.shape(2) == N, "Q={} attn={}", q.shape(), attn.shape());
+  NASSERT(attn.shape(3) == B, "Q={} attn={}", q.shape(), attn.shape());
+
+  NASSERT(mask.ndim() == 2, mask.shape());
+  NASSERT(mask.shape(0) == mask.shape(1), "mask={}", mask.shape());
+  NASSERT(mask.shape(0) >= Lkv, "K={} mask={}", k.shape(), mask.shape());
+  NASSERT(mask.shape(0) >= Lq, "Q={} mask={}", q.shape(), mask.shape());
+
+  // attn = Q⋅Kᵀ
+  q.view({D, Lq, B * N});
+  k.view({D, Lkv, B * N});
+  attn.view({Lkv, Lq, B * N});
+
   matmul_2d_out<T, true>(q, k, attn);
 
-  // mask(Q⋅Kᵀ)
+  NLOG_TRACE("====== Q⋅Kᵀ ======");
+  NLOG_TRACE(q.str());
+  NLOG_TRACE(k.str());
+  NLOG_TRACE(attn.str());
+
+  // attn = mask(Q⋅Kᵀ/√D)
+  const T inv_sqrt_D = 1.0f / std::sqrt(D);
   for (size_t b = 0; b < B * N; ++b) {
     for (size_t i = 0; i < Lq; ++i) {
       for (size_t j = 0; j < Lkv; ++j) {
-        attn.at(b, i, j) =
-            attn.at(b, i, j) + mask.at(b, i, j);  // TODO: for generation stage
+        attn.at(j, i, b) = attn.at(j, i, b) + mask.at(j, i);
+        if (!std::isinf(attn.at(j, i, b))) {
+          attn.at(j, i, b) *= inv_sqrt_D;
+        }
       }
     }
   }
 
-  // mask(Q⋅Kᵀ/√D)
-  // TODO: potential optimization: skip inf number
-  div_scalar_inline<T>(attn, std::sqrt(D));
+  NLOG_TRACE("====== attn = mask(attn/√D) ======");
+  NLOG_TRACE(mask.str());
+  NLOG_TRACE(attn.str());
 
-  // softmax(mask(Q⋅Kᵀ/√D))
-  softmax_inline(m, true);
+  // attn = softmax(mask(Q⋅Kᵀ/√D))
+  softmax_inline(attn, true);
 
-  // V⋅softmax(mask(Q⋅Kᵀ/√D))
-  v.view({B * N, Lkv, D});
-  matmul_2d_out<T, false>(sm, v, q);
+  NLOG_TRACE("====== softmax ======");
+  NLOG_TRACE(attn.str());
 
-  q.view({B, N, Lq, D});
-  k.view({B, N, Lkv, D});
-  v.view({B, N, Lkv, D});
-  attn.view({B, N, Lq, Lkv});
+  // q = attn⋅V
+  v.view({D, Lkv, B * N});
+  matmul_2d_out<T, false>(attn, v, q);
+
+  NLOG_TRACE("====== Q = attn⋅V ======");
+  NLOG_TRACE(attn.str());
+  NLOG_TRACE(v.str());
+  NLOG_TRACE(q.str());
+
+  q.view({D, Lq, N, B});
+  k.view({D, Lkv, N, B});
+  v.view({D, Lkv, N, B});
+  attn.view({Lkv, Lq, N, B});
 }
 
-}  // namespace func
+} // namespace func

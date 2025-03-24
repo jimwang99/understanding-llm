@@ -4,7 +4,7 @@
 
 class TransposeTest : public ::testing::Test {
 protected:
-  void SetUp() override { setup_logger(); }
+  void SetUp() override { get_logger(); }
 };
 
 TEST_F(TransposeTest, Basic3DTranspose) {
@@ -16,9 +16,9 @@ TEST_F(TransposeTest, Basic3DTranspose) {
   func::tranpose_1_2_inline(x);
   TRACE("after transpose: {}", x.str());
 
-  EXPECT_EQ(x.shape()[0], 1);
-  EXPECT_EQ(x.shape()[1], 3);
-  EXPECT_EQ(x.shape()[2], 2);
+  EXPECT_EQ(x.shape()[0], 1u);
+  EXPECT_EQ(x.shape()[1], 3u);
+  EXPECT_EQ(x.shape()[2], 2u);
 
   EXPECT_FLOAT_EQ(x.at(0, 0, 0), 1.0f);
   EXPECT_FLOAT_EQ(x.at(0, 1, 0), 3.0f);
@@ -37,10 +37,10 @@ TEST_F(TransposeTest, TransposeWithBatch) {
   TRACE("after transpose: {}", x.str());
 
   auto shape = x.shape();
-  EXPECT_EQ(shape[0], 1);
-  EXPECT_EQ(shape[1], 3);
-  EXPECT_EQ(shape[2], 2);
-  EXPECT_EQ(shape[3], 4);
+  EXPECT_EQ(shape[0], 1u);
+  EXPECT_EQ(shape[1], 3u);
+  EXPECT_EQ(shape[2], 2u);
+  EXPECT_EQ(shape[3], 4u);
 
   EXPECT_FLOAT_EQ(x.at(0), 1.0f);
   EXPECT_FLOAT_EQ(x.at(1), 3.0f);

@@ -58,13 +58,12 @@ void linear_out(
   }
 }
 
-}  // namespace func
+} // namespace func
 
 namespace module {
 
-template <typename T>
-class Linear : public virtual Module<T> {
- protected:
+template <typename T> class Linear : public virtual Module<T> {
+protected:
   size_t len_in_;  /*! input sequence length */
   size_t len_out_; /*! output sequence length */
   bool has_bias_;  /*! whether to use bias */
@@ -74,16 +73,12 @@ class Linear : public virtual Module<T> {
   Tensor<T> &input_;
   Tensor<T> &output_;
 
- public:
+public:
   Linear(const std::string name, const size_t len_in, const size_t len_out,
          Tensor<T> &input, Tensor<T> &output)
-      : Module<T>(name),
-        len_in_(len_in),
-        len_out_(len_out),
-        weight_({len_in, len_out}, "weight"),
-        input_(input),
-        output_(output),
-        logger_(setup_logger("Linear")) {
+      : Module<T>(name), len_in_(len_in), len_out_(len_out),
+        weight_({len_in, len_out}, "weight"), input_(input), output_(output),
+        logger_(get_logger("Linear")) {
     add_param("Li", len_in_);
     add_param("Lo", len_out_);
     add_weight(weight_);
@@ -96,12 +91,11 @@ class Linear : public virtual Module<T> {
   void forward() override { func::linear_out<T>(input_, weight_, output_); }
 };
 
-template <typename T>
-class LinearAdd : public virtual Linear<T> {
- protected:
+template <typename T> class LinearAdd : public virtual Linear<T> {
+protected:
   Tensor<T> &addend_;
 
- public:
+public:
   LinearAdd(const std::string name, const size_t len_in, const size_t len_out,
             Tensor<T> &input, Tensor<T> &addend, Tensor<T> &output)
       : Linear<T>(name, len_in, len_out, input, output), addend_(addend) {
@@ -115,9 +109,8 @@ class LinearAdd : public virtual Linear<T> {
   }
 };
 
-template <typename T>
-class LinearSilu : public virtual Linear<T> {
- public:
+template <typename T> class LinearSilu : public virtual Linear<T> {
+public:
   LinearSilu(const std::string name, const size_t len_in, const size_t len_out,
              Tensor<T> &input, Tensor<T> &output)
       : Linear<T>(name, len_in, len_out, input, output) {
@@ -129,4 +122,4 @@ class LinearSilu : public virtual Linear<T> {
   }
 };
 
-}  // namespace module
+} // namespace module

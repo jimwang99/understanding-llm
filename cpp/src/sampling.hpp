@@ -15,11 +15,11 @@ void argmax_out(const Tensor<T> &input, Tensor<size_t> &output) {
   auto D0 = input.shape(0);
   auto D1 = input.shape(1);
   auto D2 = input.shape(2);
-  for (auto i2 = 0; i2 < D2; ++i2) {
-    for (auto i0 = 0; i0 < D0; ++i0) {
+  for (size_t i2 = 0; i2 < D2; ++i2) {
+    for (size_t i0 = 0; i0 < D0; ++i0) {
       T max_val = input.at(i0, 0, i2);
       auto max_idx = 0;
-      for (auto i1 = 1; i1 < D1; ++i1) {
+      for (size_t i1 = 1; i1 < D1; ++i1) {
         if (input.at(i0, i1, i2) > max_val) {
           max_val = input.at(i0, i1, i2);
           max_idx = i1;

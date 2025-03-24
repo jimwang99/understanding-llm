@@ -5,7 +5,7 @@
 
 class SoftmaxTest : public ::testing::Test {
 protected:
-  void SetUp() override { setup_logger(); }
+  void SetUp() override { get_logger(); }
 };
 
 TEST_F(SoftmaxTest, BasicSoftmax) {

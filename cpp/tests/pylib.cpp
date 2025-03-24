@@ -78,8 +78,8 @@ py::array_t<T> py_matmul(const py::array_t<T> &x, const py::array_t<T> &y) {
 }
 
 PYBIND11_MODULE(ullm, m) {
-  logger = setup_logger("pylib.cpp", "trace");
-  setup_logger("elem_wise.hpp", "trace");
+  logger = get_logger("pylib.cpp", "trace");
+  get_logger("elem_wise.hpp", "trace");
 
   m.doc() = "Understanding LLM C++ Framework";
 

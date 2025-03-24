@@ -1,8 +1,8 @@
 #pragma once
 
-#include "module.hpp"
 #include "input_norm.hpp"
 #include "input_proj.hpp"
+#include "module.hpp"
 
 namespace llama {
 template <typename T> class Layer final : public virtual Module<T> {
@@ -67,7 +67,7 @@ public:
         m_up_proj_(name + ".up_proj", hp_.D, hp_.Dn, embn_, up_),
         m_gate_proj_(name + ".gate_proj", hp_.D, hp_.Dn, embn_, gate_),
         m_down_proj_(name + ".down_proj", hp_.D, hp_.Dn, up_, emb_),
-        logger_(setup_logger("Layer")),
+        logger_(get_logger("Layer")),
 
   {
     add_inout(emb_);
